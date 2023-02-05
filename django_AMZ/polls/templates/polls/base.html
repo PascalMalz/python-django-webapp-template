@@ -1,0 +1,164 @@
+{% load i18n static %}
+{% load static %}
+<!DOCTYPE html>
+{% get_current_language as LANGUAGE_CODE %}{% get_current_language_bidi as LANGUAGE_BIDI %}
+<html lang="{{ LANGUAGE_CODE|default:" de" }}" dir="{{ LANGUAGE_BIDI|yesno:'rtl,ltr,auto' }}">
+
+<head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+<link href=" https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+
+    <!-- Bootstrap 5 -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
+    crossorigin="anonymous"></script>
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css"
+        integrity="sha512-xh6O/CkQoPOWDdYTDqeRdPCVd1SpvCA9XXcUnZS2FmJNp1coAFzvtCN9BmamE+4aHK8yyUHUSCcJHgXloTyT2A=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <!-- Datatabele CSS -->
+    <link rel="stylesheet" type="text/css"
+        href="https://cdn.datatables.net/v/bs5/jq-3.6.0/jszip-2.5.0/dt-1.12.1/b-2.2.3/b-html5-2.2.3/b-print-2.2.3/datatables.min.css" />
+      <!--Test responsive-->
+      <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/bs5/jq-3.6.0/jszip-2.5.0/dt-1.12.1/b-2.2.3/b-html5-2.2.3/b-print-2.2.3/fh-3.2.4/r-2.3.0/datatables.min.css"/>
+
+      <link rel="stylesheet" href="{% static 'polls/base.css' %}">
+</head>
+
+<body class="{% if is_popup %}popup {% endif %}{% block bodyclass %}{% endblock %}">
+
+    <!-- Container -->
+    <div id="container">
+
+        {% if not is_popup %}
+        <!-- Header -->
+        {% block header %}
+
+        <div id="header">
+
+            {% load i18n %}
+            {% get_current_language as LANGUAGE_CODE %}
+            
+
+{% comment %} from bootstrap {% endcomment %}
+
+<nav class="navbar navbar-expand-sm navbar-dark bg-dark">
+    <div class="container-fluid">
+      <a class="navbar-brand" href={% url 'polls:index' %}>StockTracker</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mynavbar">
+            <span class="navbar-toggler-icon"></span>                      
+          </button>
+
+      <div class="collapse navbar-collapse" id="mynavbar">
+      <ul class="navbar-nav me-auto">
+        {% url 'polls:index' as home_url %}
+        <li {% if request.get_full_path == home_url %}class="nav-item"{% endif %}>
+          <a class="nav-link" href={% url 'polls:index' %}>{% translate 'Home' %}</a>
+        </li>
+        {% url 'polls:best_seller' as best_seller_url %}
+        <li {% if request.get_full_path == best_seller_url %}class="nav-item"{% endif %}>
+          <a class="nav-link" href="{% url 'polls:best_seller' %}">{% translate 'Best Seller' %}</a>
+        </li>
+        {% url 'account_signup' as account_sign_up_url %}
+        <li {% if request.get_full_path == account_sign_up_url %}class="nav-item"{% endif %}>
+          <a class="nav-link" href="{% url 'account_signup' %}">{% translate 'Tracking' %}</a>
+        </li>
+        {% if user.is_active and user.is_staff %}
+        {% url 'admin_page' as admin_page_url %}
+        <li {% if request.get_full_path == admin_page_url %}class="nav-item"{% endif %}>
+          <a class="nav-link" href="{% url 'admin:index' %}">{% translate 'Admin' %}</a>
+        </li>
+        {% endif %}
+      </ul>
+
+      
+        <form class="navbar-form navbar-left" style="margin-top: 14px;margin-bottom: 14px;" action="{% url 'set_language' %}" method="post">
+            {% csrf_token %}
+            <div class="form-group">
+
+                <select name="language" class="custom-select" onchange="this.form.submit();">
+                    {% get_current_language as LANGUAGE_CODE %}
+                    {% get_available_languages as LANGUAGES %}
+                    {% get_language_info_list for LANGUAGES as languages %}
+                    {% for language in languages %}
+                    <option value="{{ language.code }}"{% if language.code == LANGUAGE_CODE %} selected="selected" {% endif %}>
+                        {{ language.name_local }} ({{ language.code }})
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+        </form>
+        {% if user.is_active %}
+                <ul class="navbar-nav ms-auto" style="align-items: center;">
+                {% block welcome-msg %}
+                <li class="nav-item">
+                <span class="navbar-text" style="padding-top: 0rem; padding-bottom: 0rem;">{% translate 'Welcome,' %}
+                {% firstof user.get_short_name user.get_username %}.</span>
+              </li>
+                <li class="nav-item">
+                <form id="logout-form" method="post" action="{% url 'account_logout' %}">
+
+                    {% csrf_token %}
+                    
+                    <button class="btn btn-danger navbar-btn" type="submit">{% translate 'Log out' %}</button>
+                
+                </form>
+            </li>
+                {% endblock %}
+                {% else %}
+                </ul>
+                <ul class="navbar-nav ms-auto">
+                    <span class="navbar-text">{% translate 'You are not logged in.' %}</span>
+                    <li class="nav-item"><a class="nav-link" href="{% url 'account_signup' %}"><i class="fas fa-user-plus"></i> {% translate 'Sign Up' %}</a></li>
+                    <a class="navbar-text">{% translate 'or' %}</a>
+                    <li class="nav-item"><a class="nav-link" href="{% url 'account_login' %}"><i class="fas fa-sign-in-alt"></i> {% translate 'Login' %}</a></li>
+                    
+                  </ul>
+
+                    
+
+                {% endif %}
+        {% if site_url %}
+                <a href="{{ site_url }}">{% translate 'View site' %}</a> /
+                {% endif %}
+
+               
+
+
+
+
+    </div>
+    </div>
+  </nav>
+
+{% comment %} ...from bootstrap {% endcomment %}
+
+
+<p class="h4">{% translate 'Current language:' %} {{ LANGUAGE_CODE }}<p>
+
+        </div>
+        {% endblock %}
+        <!-- END Header -->
+        {% block content %}
+
+        {% endblock %}
+        {% endif %}
+
+
+        <!-- END Content -->
+        {% block footer %}<div id="footer"></div>{% endblock %}
+    </div>
+    </div>
+    </div>
+    <!-- END Container -->
+
+    {% block translation %}
+    {% endblock %}
+</body>
+
+</html>

@@ -1,0 +1,12 @@
+{% extends "polls/base.html" %}
+
+{% block title %}{% if subtitle %}{{ subtitle }} | {% endif %}{{ title }} | {{ site_title|default:_('AMZ') }}{% endblock %}
+
+
+    {% block branding %}
+    <h1 id="site-name" ><a href="{% url 'polls:index' %}">AMZ</a></h1>
+    {% endblock %}
+</a></h1>
+
+
+{% block nav-global %}{% endblock %}

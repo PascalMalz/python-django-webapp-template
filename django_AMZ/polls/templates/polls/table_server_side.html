@@ -1,0 +1,132 @@
+{% extends "polls/base_site.html" %}
+{% load i18n static %}
+{% block content %}
+
+
+
+<div class="container">
+    <div class="table-responsive">
+        <table class="table" id="items-table">
+            <thead>
+                <tr>
+                    <th scope="col">{% translate 'stock_record_id' %}</th>
+                    <th scope="col">{% translate 'asin_fk' %}</th>
+                    <th scope="col">{% translate 'stock_amount' %}</th>
+                    <th scope="col">{% translate 'created_at' %}</th>
+                </tr>
+            </thead>
+
+        </table>
+    </div> <!-- End Container-->
+</div>
+
+
+<!-- jQuery -->
+<script src="https://code.jquery.com/jquery-3.6.1.min.js"
+    integrity="sha256-o88AwQnZB+VDvE9tvIXrMQaPlFFSUTR+nldQm1LuPXQ=" crossorigin="anonymous"></script>
+
+<!-- Datatabele JS -->
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.36/pdfmake.min.js"></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.36/vfs_fonts.js"></script>
+<script type="text/javascript"
+    src="https://cdn.datatables.net/v/bs5/jq-3.6.0/jszip-2.5.0/dt-1.12.1/b-2.2.3/b-html5-2.2.3/b-print-2.2.3/datatables.min.js"></script>
+
+<!--Test responsive-->
+
+
+<!-- <script type="text/javascript" src="https://cdn.datatables.net/1.12.1/js/jquery.dataTables.min.js"></script>
+                <script type="text/javascript" src="https://cdn.datatables.net/fixedheader/3.2.4/js/dataTables.fixedHeader.min.js"></script> -->
+
+<script language="javascript">
+    $.fn.dataTable.ext.errMode = 'throw';
+
+    // DataTables initialisation
+
+    $(document).ready(function () {
+        $('#items-table thead tr').clone(true).addClass('filters').appendTo('#items-table thead');
+
+        let stock_records_conf = $('#items-table').DataTable({
+            "processing": true,
+            serverSide: true,
+            //responsive: true,
+            sAjaxSource: "http://82.165.48.65:80/data/",  // new url
+            columns: [
+                { name: "stock_record_id", data: 0 },
+                { name: "asin_fk", data: 1 },
+                { name: "stock_amount", data: 2 },
+                { name: "created_at", data: 3 },
+            ],
+            lengthMenu: [
+                [10, 25, 50, -1],
+                ['10', '25', '50', 'Alle Einträge']
+            ],
+            dom: 'lBfrtip',
+            buttons: {
+                buttons: [
+                    {   //Copy button
+                        extend: 'copy',
+                        text: '<i class="fas fa-clone"></i>',
+                        className: 'btn btn-secondary',
+                        titleAttr: 'Copy',
+                        exportOptions: {
+                            columns: [0, 1, 2, 3]
+                        },
+                    },
+                    {   //Export Excel
+                        extend: 'excel',
+                        text: '<i class="fas fa-file-excel"></i>',
+                        className: 'btn btn-secondary',
+                        titleAttr: 'Excel',
+                        exportOptions: {
+                            columns: [0, 1, 2, 3]
+                        }
+                    },
+                    {   //Export PDF
+                        extend: 'print',
+                        text: '<i class="fas fa-print"></i>',
+                        className: 'btn btn-secondary',
+                        titleAttr: 'Print',
+                        exportOptions: {
+                            columns: [0, 1, 2, 3]
+                        }
+                    },
+                ]
+            },
+
+            orderCellsTop: true,
+            fixedHeader: true,
+            initComplete: function () {
+                var api = this.api();
+                // For each column
+                api.columns().eq(0).each(function (colIdx) {
+                    // Set the header cell to contain the input element
+                    var cell = $('.filters th').eq($(api.column(colIdx).header()).index());
+                    var title = $(cell).text();
+                    $(cell).html('<input type="text" placeholder="' + title + '" />');
+                    // On every keypress in this input
+                    $('input', $('.filters th').eq($(api.column(colIdx).header()).index()))
+                        .off('keyup change')
+                        .on('keyup change', function (e) {
+                            e.stopPropagation();
+                            // Get the search value
+                            $(this).attr('title', $(this).val());
+                            var regexr = '({search})'; //$(this).parents('th').find('select').val();
+                            var cursorPosition = this.selectionStart;
+                            // Search the column for that value
+                            api
+                                .column(colIdx)
+                                .search((this.value != "") ? regexr.replace('{search}', '(((' + this.value + ')))') : "", this.value != "", this.value == "")
+                                .draw();
+                            $(this).focus()[0].setSelectionRange(cursorPosition, cursorPosition);
+                        });
+                });
+            }
+        });
+
+    });
+
+
+
+</script>
+
+{% endblock %}

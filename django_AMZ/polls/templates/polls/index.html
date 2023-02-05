@@ -1,0 +1,30 @@
+
+{% extends "polls/base_site.html" %}
+{% load i18n static %}
+{% block content %}
+
+
+{% load static %}
+
+
+
+{% if user.is_authenticated %}
+<p class="h3">{% translate 'Welcome, you are successfully logged in as ' %} "{{ user.username}}"</p>
+{% else %}
+<p class="h3">{% translate 'Please register or log in' %}</p>
+{% endif %}
+
+<img src="/static/images/Best_Seller_small.jpg" class="img-fluid" alt="Responsive image" style="max-width:100%">
+
+{% comment %} {% if latest_question_list %}
+    <ul>
+    {% for question in latest_question_list %}
+    <li><a href="{% url 'polls:detail' question.id %}">{{ question.question_text }}</a></li>
+
+    {% endfor %}
+    </ul>
+{% else %}
+    <p>No polls are available.</p>
+{% endif %} {% endcomment %}
+
+{% endblock %}

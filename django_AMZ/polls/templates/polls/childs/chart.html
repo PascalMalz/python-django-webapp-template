@@ -1,0 +1,37 @@
+<div>
+  <canvas id="myChart"></canvas>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    // document.querySelector("#container > div.table-container > table > tbody").children[1].children[1].innerHTML
+    // 'B08FXRJ9DK'
+    let current_table = document.querySelector("#container > div.table-container > table > tbody").children
+    console.log(current_table)
+    //  current_table.forEach(element => {
+    //      console.log("helloo")
+    //  });
+        const config = {
+      type: 'line',
+      data: {
+      datasets: [{
+        data: [{x:'2016-12-25', y:20}, {x:'2016-12-26', y:10},{x:'2016-12-27', y:20},{x:'2016-12-28', y:50}],
+        label: 'B09JKXZYR7',
+        borderColor: 'rgb(0, 0, 0)',
+      },
+      {
+      data: [{x:'2016-12-25', y:10}, {x:'2016-12-26', y:30},{x:'2016-12-27', y:20},{x:'2016-12-29', y:50}],
+        label: 'B09JKXZYR7',
+        borderColor: 'rgb(200, 100, 100)',
+        }
+      ]
+    }
+    };
+      </script>
+    
+    <script>
+        const myChart = new Chart(
+          document.getElementById('myChart'),
+          config
+        );
+      </script>
